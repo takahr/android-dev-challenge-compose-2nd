@@ -25,16 +25,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.androiddevchallenge.ui.theme.CountDownTheme
 
+private enum class CountState { Clear, Ready }
+
 @ExperimentalAnimationApi
 @Composable
 fun CountDownScreen() {
-    var buttonVisible by remember { mutableStateOf(false) }
+    var countState by remember { mutableStateOf(CountState.Clear) }
+
     LaunchedEffect("CountDownScreen") {
-        buttonVisible = true
+        countState = CountState.Ready
     }
     Box(Modifier.fillMaxSize(1f)) {
         AnimatedVisibility(
-            visible = buttonVisible,
+            visible = countState == CountState.Ready,
             enter = slideInVertically(
                 initialOffsetY = { it / 4 },
                 animationSpec = tween(durationMillis = 600, easing = LinearOutSlowInEasing))
@@ -46,7 +49,7 @@ fun CountDownScreen() {
             modifier = Modifier.fillMaxSize()
         ) {
             Button(
-                onClick = { buttonVisible = false },
+                onClick = { countState = CountState.Clear },
                 modifier = Modifier
                     .align(Alignment.Center)
                     .wrapContentSize()
