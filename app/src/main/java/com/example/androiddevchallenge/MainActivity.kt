@@ -25,8 +25,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.androiddevchallenge.ui.CountDownScreen
 import com.example.androiddevchallenge.ui.theme.CountDownTheme
+import kotlin.time.ExperimentalTime
 
 class MainActivity : AppCompatActivity() {
+    @ExperimentalTime
     @ExperimentalAnimationApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +41,7 @@ class MainActivity : AppCompatActivity() {
 }
 
 // Start building your app here!
+@ExperimentalTime
 @ExperimentalAnimationApi
 @Composable
 fun CountDownApp() {
@@ -47,6 +50,7 @@ fun CountDownApp() {
     }
 }
 
+@ExperimentalTime
 @ExperimentalAnimationApi
 @Preview("Light Theme", widthDp = 360, heightDp = 640)
 @Composable
@@ -56,6 +60,7 @@ fun LightPreview() {
     }
 }
 
+@ExperimentalTime
 @ExperimentalAnimationApi
 @Preview("Dark Theme", widthDp = 360, heightDp = 640)
 @Composable

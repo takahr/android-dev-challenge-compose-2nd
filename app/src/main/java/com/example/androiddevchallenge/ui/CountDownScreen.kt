@@ -2,12 +2,15 @@ package com.example.androiddevchallenge.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
@@ -22,24 +25,126 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.group
+import androidx.compose.ui.graphics.vector.path
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.androiddevchallenge.ui.theme.CountDownTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.ExperimentalTime
 import kotlin.time.milliseconds
 
-private enum class CountState { Clear, Ready, Count3, Count2, Count1, Launch }
+val barImageVector = ImageVector.Builder(defaultHeight = 100f.dp, defaultWidth = 100f.dp, viewportWidth = 100f, viewportHeight = 100f).apply {
+    group(rotate = 45f, pivotX = 50f, pivotY = 50f) {
+        path(stroke = SolidColor(Color.Black), strokeLineWidth = 0.3f) {
+            moveTo(45f,45f)
+            lineTo(0f, 0f)
+        }
+    }
+}.build()
+
+val circleImageVector = ImageVector.Builder(defaultHeight = 100f.dp, defaultWidth = 100f.dp, viewportWidth = 100f, viewportHeight = 100f).apply {
+    group {
+        path(stroke = SolidColor(Color.Black), strokeLineWidth = 1.5f) {
+            moveTo(45f, 45f)
+            arcTo(
+                horizontalEllipseRadius = 7.7f,
+                verticalEllipseRadius = 7.7f,
+                theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
+                x1 = 55f, y1 = 45f)
+            arcTo(
+                horizontalEllipseRadius = 7.7f,
+                verticalEllipseRadius = 7.7f,
+                theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
+                x1 = 55f, y1 = 55f)
+            arcTo(
+                horizontalEllipseRadius = 7.7f,
+                verticalEllipseRadius = 7.7f,
+                theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
+                x1 = 45f, y1 = 55f)
+            arcTo(
+                horizontalEllipseRadius = 7.7f,
+                verticalEllipseRadius = 7.7f,
+                theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
+                x1 = 45f, y1 = 45f)
+            close()
+        }
+
+        path(stroke = SolidColor(Color.Black), strokeLineWidth = 0.3f) {
+            moveTo(41f, 50f)
+            arcTo(
+                horizontalEllipseRadius = 9f,
+                verticalEllipseRadius = 9f,
+                theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
+                x1 = 50f, y1 = 41f)
+            arcTo(
+                horizontalEllipseRadius = 9f,
+                verticalEllipseRadius = 9f,
+                theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
+                x1 = 59f, y1 = 50f)
+            arcTo(
+                horizontalEllipseRadius = 9f,
+                verticalEllipseRadius = 9f,
+                theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
+                x1 = 50f, y1 = 59f)
+            arcTo(
+                horizontalEllipseRadius = 9f,
+                verticalEllipseRadius = 9f,
+                theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
+                x1 = 41f, y1 = 50f)
+            close()
+        }
+    }
+}.build()
 
 @ExperimentalAnimationApi
 @Composable
-fun CountView(count: Int, visible: Boolean, modifier: Modifier = Modifier) {
-    AnimatedVisibility(visible = visible, modifier = modifier.fillMaxSize()) {
+fun CountView(count: Int, visible: Boolean) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(1f, animationSpec = tween(10)),
+        exit = fadeOut(0f, tween(0))
+    ) {
+        var rotateDegree by remember { mutableStateOf(0f)}
+        val rotateAnim: Float by animateFloatAsState(targetValue = rotateDegree, animationSpec = tween(durationMillis = 900, easing = LinearEasing))
+
+        LaunchedEffect(key1 = "rotateDegree") {
+            rotateDegree = 360f
+        }
+
         Box {
-            Text(text = count.toString(), modifier = Modifier.align(Alignment.Center))
+            Image(
+                imageVector = barImageVector,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .rotate(rotateAnim))
+            Image(
+                imageVector = circleImageVector,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize())
+            Text(text = count.toString(), fontSize = 60.sp, modifier = Modifier.align(Alignment.Center))
         }
     }
 }
+
+@ExperimentalAnimationApi
+@Preview
+@Composable
+fun CountViewPreview() {
+    CountView(count = 3, visible = true)
+}
+
+private enum class CountState { Clear, Start, Ready, Count3, Count2, Count1, Launch }
 
 @ExperimentalTime
 @ExperimentalAnimationApi
@@ -50,6 +155,8 @@ fun CountDownScreen() {
 
     val countDown: ()->Unit = {
         coroutineScope.launch {
+            countState = CountState.Ready
+            delay(1000.milliseconds)
             countState = CountState.Count3
             delay(1000.milliseconds)
             countState = CountState.Count2
@@ -60,17 +167,17 @@ fun CountDownScreen() {
             delay(1000.milliseconds)
             countState = CountState.Clear
             delay(100.milliseconds)
-            countState = CountState.Ready
+            countState = CountState.Start
         }
     }
 
     LaunchedEffect("CountDownScreen") {
-        countState = CountState.Ready
+        countState = CountState.Start
     }
     Box(Modifier.fillMaxSize(1f)) {
         // start button for Ready state.
         AnimatedVisibility(
-            visible = countState == CountState.Ready,
+            visible = countState == CountState.Start,
             enter = slideInVertically(
                 initialOffsetY = { it / 4 },
                 animationSpec = tween(durationMillis = 600, easing = LinearOutSlowInEasing))
@@ -91,9 +198,9 @@ fun CountDownScreen() {
             }
         }
         // countdown views
-        CountView(count = 3, visible = countState == CountState.Count3, modifier = Modifier.fillMaxSize())
-        CountView(count = 2, visible = countState == CountState.Count2, modifier = Modifier.fillMaxSize())
-        CountView(count = 1, visible = countState == CountState.Count1, modifier = Modifier.fillMaxSize())
+        CountView(count = 3, visible = countState == CountState.Count3)
+        CountView(count = 2, visible = countState == CountState.Count2)
+        CountView(count = 1, visible = countState == CountState.Count1)
     }
 }
 
