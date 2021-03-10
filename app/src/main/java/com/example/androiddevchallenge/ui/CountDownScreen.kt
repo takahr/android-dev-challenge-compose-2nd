@@ -1,3 +1,18 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.example.androiddevchallenge.ui
 
 import androidx.compose.animation.AnimatedVisibility
@@ -48,7 +63,7 @@ import kotlin.time.milliseconds
 val barImageVector = ImageVector.Builder(defaultHeight = 100f.dp, defaultWidth = 100f.dp, viewportWidth = 100f, viewportHeight = 100f).apply {
     group(rotate = 45f, pivotX = 50f, pivotY = 50f) {
         path(stroke = SolidColor(Color.Black), strokeLineWidth = 0.3f) {
-            moveTo(45f,45f)
+            moveTo(45f, 45f)
             lineTo(0f, 0f)
         }
     }
@@ -62,22 +77,26 @@ val circleImageVector = ImageVector.Builder(defaultHeight = 100f.dp, defaultWidt
                 horizontalEllipseRadius = 7.7f,
                 verticalEllipseRadius = 7.7f,
                 theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
-                x1 = 55f, y1 = 45f)
+                x1 = 55f, y1 = 45f
+            )
             arcTo(
                 horizontalEllipseRadius = 7.7f,
                 verticalEllipseRadius = 7.7f,
                 theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
-                x1 = 55f, y1 = 55f)
+                x1 = 55f, y1 = 55f
+            )
             arcTo(
                 horizontalEllipseRadius = 7.7f,
                 verticalEllipseRadius = 7.7f,
                 theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
-                x1 = 45f, y1 = 55f)
+                x1 = 45f, y1 = 55f
+            )
             arcTo(
                 horizontalEllipseRadius = 7.7f,
                 verticalEllipseRadius = 7.7f,
                 theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
-                x1 = 45f, y1 = 45f)
+                x1 = 45f, y1 = 45f
+            )
             close()
         }
 
@@ -158,7 +177,7 @@ fun CountView(count: Int, visible: Boolean) {
         enter = fadeIn(1f, animationSpec = tween(10)),
         exit = fadeOut(0f, tween(0))
     ) {
-        var rotateDegree by remember { mutableStateOf(0f)}
+        var rotateDegree by remember { mutableStateOf(0f) }
         val rotateAnim: Float by animateFloatAsState(targetValue = rotateDegree, animationSpec = tween(durationMillis = 900, easing = LinearEasing))
 
         LaunchedEffect(key1 = "rotateDegree") {
@@ -172,12 +191,14 @@ fun CountView(count: Int, visible: Boolean) {
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
-                    .rotate(rotateAnim))
+                    .rotate(rotateAnim)
+            )
             Image(
                 imageVector = circleImageVector,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize())
+                modifier = Modifier.fillMaxSize()
+            )
             Text(text = count.toString(), fontSize = 60.sp, modifier = Modifier.align(Alignment.Center))
         }
     }
@@ -247,7 +268,7 @@ fun CountDownScreen() {
     var countState by remember { mutableStateOf(CountState.Clear) }
     val coroutineScope = rememberCoroutineScope()
 
-    val countDown: ()->Unit = {
+    val countDown: () -> Unit = {
         coroutineScope.launch {
             countState = CountState.Ready
             delay(1000.milliseconds)
@@ -274,12 +295,14 @@ fun CountDownScreen() {
             visible = countState == CountState.Start,
             enter = slideInVertically(
                 initialOffsetY = { it / 4 },
-                animationSpec = tween(durationMillis = 600, easing = LinearOutSlowInEasing))
-                + fadeIn(),
+                animationSpec = tween(durationMillis = 600, easing = LinearOutSlowInEasing)
+            ) +
+                fadeIn(),
             exit = slideOutVertically(
                 targetOffsetY = { it / 4 },
-                animationSpec = tween(durationMillis = 600, easing = LinearOutSlowInEasing))
-                + fadeOut(),
+                animationSpec = tween(durationMillis = 600, easing = LinearOutSlowInEasing)
+            ) +
+                fadeOut(),
             modifier = Modifier.fillMaxSize()
         ) {
             Button(
