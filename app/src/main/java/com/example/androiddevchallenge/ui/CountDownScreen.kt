@@ -12,6 +12,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Button
@@ -26,7 +27,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.group
@@ -38,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import com.example.androiddevchallenge.ui.theme.CountDownTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 import kotlin.time.ExperimentalTime
 import kotlin.time.milliseconds
 
@@ -83,24 +87,66 @@ val circleImageVector = ImageVector.Builder(defaultHeight = 100f.dp, defaultWidt
                 horizontalEllipseRadius = 9f,
                 verticalEllipseRadius = 9f,
                 theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
-                x1 = 50f, y1 = 41f)
+                x1 = 50f, y1 = 41f
+            )
             arcTo(
                 horizontalEllipseRadius = 9f,
                 verticalEllipseRadius = 9f,
                 theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
-                x1 = 59f, y1 = 50f)
+                x1 = 59f, y1 = 50f
+            )
             arcTo(
                 horizontalEllipseRadius = 9f,
                 verticalEllipseRadius = 9f,
                 theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
-                x1 = 50f, y1 = 59f)
+                x1 = 50f, y1 = 59f
+            )
             arcTo(
                 horizontalEllipseRadius = 9f,
                 verticalEllipseRadius = 9f,
                 theta = 0f, isMoreThanHalf = false, isPositiveArc = true,
-                x1 = 41f, y1 = 50f)
+                x1 = 41f, y1 = 50f
+            )
             close()
         }
+    }
+}.build()
+
+fun ImageVector.Builder.flowerPetalPath(rotate: Float) {
+    group(rotate = rotate, pivotX = 50f, pivotY = 50f) {
+        path(stroke = SolidColor(Color.Black), fill = SolidColor(Color.Black)) {
+            moveTo(50f, 45f)
+            arcTo(
+                horizontalEllipseRadius = 22f,
+                verticalEllipseRadius = 22f,
+                theta = 0f,
+                isMoreThanHalf = false,
+                isPositiveArc = true,
+                x1 = 45f,
+                y1 = 10f
+            )
+            lineTo(50f, 15f)
+            lineTo(55f, 10f)
+            arcTo(
+                horizontalEllipseRadius = 22f,
+                verticalEllipseRadius = 22f,
+                theta = 0f,
+                isMoreThanHalf = false,
+                isPositiveArc = true,
+                x1 = 50f,
+                y1 = 45f
+            )
+        }
+    }
+}
+
+val flowerImageVector = ImageVector.Builder(defaultHeight = 100f.dp, defaultWidth = 100f.dp, viewportWidth = 100f, viewportHeight = 100f).apply {
+    group(pivotX = 50f, pivotY = 50f) {
+        flowerPetalPath(0f)
+        flowerPetalPath(72f)
+        flowerPetalPath(144f)
+        flowerPetalPath(216f)
+        flowerPetalPath(288f)
     }
 }.build()
 
@@ -144,6 +190,54 @@ fun CountViewPreview() {
     CountView(count = 3, visible = true)
 }
 
+@ExperimentalAnimationApi
+@Composable
+fun SingleFlower(modifier: Modifier = Modifier) {
+    val sat = 0.13f + (Random.nextFloat() - 0.5f) * 0.08f
+    val v = 0.98f + (Random.nextFloat() - 0.5f) * 0.08f
+    val tintColor = Color(android.graphics.Color.HSVToColor(floatArrayOf(352f, sat, v)))
+    val rotate = Random.nextFloat() * 360f
+    val delay = (Random.nextFloat() * 1200).toInt()
+    val scale = Random.nextFloat() * 0.4f + 0.6f
+    AnimatedVisibility(
+        visible = true,
+        enter = fadeIn(0f, tween(200, delay)),
+        modifier = modifier
+    ) {
+        Image(
+            imageVector = flowerImageVector,
+            colorFilter = ColorFilter.tint(tintColor),
+            contentDescription = null,
+            modifier = Modifier.rotate(rotate).scale(scale)
+        )
+    }
+}
+
+@ExperimentalAnimationApi
+@Composable
+fun Flower(visible: Boolean) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = fadeIn(1f, animationSpec = tween(10)),
+        exit = fadeOut(0f, tween(0)),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            for (i in 1..8) {
+                SingleFlower(Modifier.absoluteOffset((Random.nextFloat() * 300).dp, (Random.nextFloat() * 100).dp).align(Alignment.TopStart))
+                SingleFlower(Modifier.absoluteOffset((Random.nextFloat() * 300).dp, (Random.nextFloat() * 100).dp).align(Alignment.TopEnd))
+            }
+        }
+    }
+}
+
+@ExperimentalAnimationApi
+@Preview
+@Composable
+fun FlowerPreview() {
+    Flower(visible = true)
+}
+
 private enum class CountState { Clear, Start, Ready, Count3, Count2, Count1, Launch }
 
 @ExperimentalTime
@@ -164,7 +258,7 @@ fun CountDownScreen() {
             countState = CountState.Count1
             delay(1000.milliseconds)
             countState = CountState.Launch
-            delay(1000.milliseconds)
+            delay(5000.milliseconds)
             countState = CountState.Clear
             delay(100.milliseconds)
             countState = CountState.Start
@@ -201,6 +295,8 @@ fun CountDownScreen() {
         CountView(count = 3, visible = countState == CountState.Count3)
         CountView(count = 2, visible = countState == CountState.Count2)
         CountView(count = 1, visible = countState == CountState.Count1)
+        // flower
+        Flower(visible = countState == CountState.Launch)
     }
 }
 
