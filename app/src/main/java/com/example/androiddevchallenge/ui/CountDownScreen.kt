@@ -27,8 +27,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -56,6 +56,9 @@ import androidx.compose.ui.unit.sp
 import com.example.androiddevchallenge.ui.theme.CountDownTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.random.Random
 import kotlin.time.ExperimentalTime
 import kotlin.time.milliseconds
@@ -213,23 +216,26 @@ fun CountViewPreview() {
 
 @ExperimentalAnimationApi
 @Composable
-fun SingleFlower(modifier: Modifier = Modifier) {
+fun SingleFlower(visible: Boolean, modifier: Modifier = Modifier) {
     val sat = 0.13f + (Random.nextFloat() - 0.5f) * 0.08f
-    val v = 0.98f + (Random.nextFloat() - 0.5f) * 0.08f
-    val tintColor = Color(android.graphics.Color.HSVToColor(floatArrayOf(352f, sat, v)))
+    val value = 0.98f + (Random.nextFloat() - 0.5f) * 0.08f
+    val tintColor = Color(android.graphics.Color.HSVToColor(floatArrayOf(352f, sat, value)))
     val rotate = Random.nextFloat() * 360f
-    val delay = (Random.nextFloat() * 1200).toInt()
+    val delay = (Random.nextFloat() * 2000).toInt()
     val scale = Random.nextFloat() * 0.4f + 0.6f
     AnimatedVisibility(
-        visible = true,
-        enter = fadeIn(0f, tween(200, delay)),
+        visible = visible,
+        initiallyVisible = false,
+        enter = fadeIn(0f, tween(250, delay)),
         modifier = modifier
     ) {
         Image(
             imageVector = flowerImageVector,
             colorFilter = ColorFilter.tint(tintColor),
             contentDescription = null,
-            modifier = Modifier.rotate(rotate).scale(scale)
+            modifier = Modifier
+                .rotate(rotate)
+                .scale(scale)
         )
     }
 }
@@ -237,17 +243,16 @@ fun SingleFlower(modifier: Modifier = Modifier) {
 @ExperimentalAnimationApi
 @Composable
 fun Flower(visible: Boolean) {
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn(1f, animationSpec = tween(10)),
-        exit = fadeOut(0f, tween(0)),
+    Box(
+        contentAlignment = Alignment.Center,
         modifier = Modifier.fillMaxSize()
     ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            for (i in 1..8) {
-                SingleFlower(Modifier.absoluteOffset((Random.nextFloat() * 300).dp, (Random.nextFloat() * 100).dp).align(Alignment.TopStart))
-                SingleFlower(Modifier.absoluteOffset((Random.nextFloat() * 300).dp, (Random.nextFloat() * 100).dp).align(Alignment.TopEnd))
-            }
+        for (i in 1..20) {
+            val r = Random.nextFloat() * 300 + 10f
+            val th = Random.nextFloat() * 2 * PI
+            val x = cos(th) * r
+            val y = sin(th) * r
+            SingleFlower(visible = visible, modifier = Modifier.offset(x.dp, y.dp))
         }
     }
 }
