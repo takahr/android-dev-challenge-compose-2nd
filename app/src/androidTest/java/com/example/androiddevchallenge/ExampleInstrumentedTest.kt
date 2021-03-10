@@ -31,8 +31,4 @@ class ExampleInstrumentedTest {
     @get:Rule
     val composeTestRule = createAndroidComposeRule<MainActivity>()
 
-    @Test
-    fun sampleTest() {
-        // Add instrumented tests here
-    }
 }
